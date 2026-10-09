@@ -20,7 +20,7 @@ Schedule estimates in the source blueprint are advisory; work proceeds by exit c
 | DATA-02 | platform + later intelligence | Completed locally: immutable snapshots, hashed manifests, artifact adapter | 43 API/PostGIS tests (nine snapshot scenarios), 15 UI and 2 boundary tests; versioned content and schema; deterministic hash stability; zero operational mutation; trigger immutability; dedicated snapshot_reader role with forced RLS | DATA-01 |
 | ROUTE-01 | osm-pathfinder | Completed locally: directed matrix, fleet profiles, real-PBF validation | 49/49 Rust tests pass; asymmetric costs, truck/van/motorcycle profiles, turn penalties, speed caps, OOB 400 rejection, explicit null for unreachable cells, pinned versions | P0-05 |
 | OPT-01 | distribution-intelligence | Completed locally: VRPTW solver, greedy comparator, independent constraints | 6/6 tests pass; metaheuristic local search optimizer, greedy baseline, independent validator for capacity/windows/shifts/service times, snapshot adapter | DATA-02, ROUTE-01 |
-| EVAL-01 | distribution-intelligence | Historical baseline, costs, calibration and comparison | Financial assumptions explicit; held-out outcomes; projected versus realized clearly separated | DATA-02, OPT-01 |
+| EVAL-01 | distribution-intelligence | Completed locally: historical baseline, costs, calibration and comparison | 14/14 tests pass; financial cost-to-serve model, historical trip baseline, held-out travel/dwell calibration, projected vs realized separation, CRN multi-seed Monte Carlo | DATA-02, OPT-01 |
 | ENV-02 | workspace / sandbox | Completed locally: containerize isolated simulator and UI | 44/44 E2E tests pass; health-checked Compose stack, simulation profile, planning network only, zero operational DB credentials/egress | P0-01, P0-04, ENV-01 |
 | PILOT-01 | supply-chain-platform | Completed locally: OIDC/JWT, role authorization, tamper-evident audit, backup verification | 8/8 platform tests pass, 15/15 web tests pass, 2/2 boundary tests pass; HS256 signature verification, operator/reader RBAC, SHA-256 chained audit integrity and backup script | OPS-03, EVAL-01 |
 
@@ -41,7 +41,9 @@ ROUTE-01 now passes locally (49/49 Rust tests in osm-pathfinder); see docs/SETUP
 ENV-02 now passes locally (44/44 dual-track E2E tests, Validate.ps1 passes); see docs/SETUP_STATUS.md.
 P0-05 now passes locally (51/51 Rust tests, 83/83 sandbox backend tests); see docs/SETUP_STATUS.md.
 OPT-01 now passes locally (6/6 tests in distribution-intelligence); see docs/SETUP_STATUS.md.
+EVAL-01 now passes locally (14/14 tests in distribution-intelligence); see docs/SETUP_STATUS.md.
 PILOT-01 now passes locally (8 platform tests, 15 web tests, 2 boundary tests, Verify-Backup.ps1); see docs/SETUP_STATUS.md.
+
 
 ## Existing source issues to carry forward
 

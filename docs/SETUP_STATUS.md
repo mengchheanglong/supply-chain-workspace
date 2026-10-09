@@ -352,6 +352,26 @@ changes remain uncommitted; earlier workspace/sandbox work is preserved.
 - `SnapshotAdapter`: Converts platform `DATA-02` snapshot manifests into solver `ProblemDefinition`.
 - Test evidence: `tests/validator.test.ts`, `tests/vrptw.test.ts` -> **6 of 6 tests pass**. Clean compilation (`npx tsc`).
 
+### EVAL-01: Financial Cost-to-Serve, Historical Baseline, Calibration & Comparison
+- `FinancialCostModel`:
+  - Parameterized cost breakdown: fixed vehicle overhead (\$/day), distance variable costs (\$/km), regular driver labor (\$/hr), overtime labor (\$/hr) with configurable shift threshold (8h), SLA late arrival penalty (\$/late stop), and dropped order opportunity penalty (\$/stop).
+  - Exact integer cents calculations for plans and historical trip logs.
+- `HistoricalReconstructor`:
+  - Reconstructs ground-truth operational baseline from recorded shipment and trip execution logs (vehicles used, odometer km, total shift hours, SLA on-time rate, and financial cost-to-serve).
+- `ModelCalibrator`:
+  - Partitions dataset into calibration days (train) and held-out days (test).
+  - Calibrates empirical road travel factor (observed vs free-flow duration) and parcel handling dwell time.
+  - Computes held-out Travel Time MAPE, prediction bias, Dwell MAPE, and data quality coverage.
+  - Enforces calibration gate (MAPE <= 25%, Coverage >= 90%).
+- `ScenarioComparator`:
+  - Three-track evaluation: `HISTORICAL_ACTUAL` vs `GREEDY_BASELINE` vs `OPTIMIZED_PLAN`.
+  - Common Random Numbers (CRN): Seeded PRNG generates bit-identical stochastic realizations across evaluation tracks.
+  - Monte Carlo simulation: Evaluates multi-seed realizations, reporting projected savings vs expected realized savings with 95% Confidence Intervals (`[lower95, upper95]`).
+  - Evaluates SLA breach risk under stochastic operational variation and generates actionable pilot recommendations.
+- Test evidence:
+  - `distribution-intelligence/tests/evaluation.test.ts`: **8 of 8 tests pass**.
+  - Vitest / Node test runner: **3 test files / 14 of 14 tests pass**. Clean compilation (`npm run build`).
+
 ### PILOT-01: Enterprise Identity, RBAC, Tamper-Evident Audit & Backup Verification
 - OIDC / JWT Authentication:
   - `OidcValidator`: HS256 JWT decoding and validation (`timingSafeEqual` HMAC verification, expiry `exp`, activation `nbf`, issuer `iss`, audience `aud`, tenant claim `tenant_id`, and role mapping).
