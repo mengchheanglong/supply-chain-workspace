@@ -1,0 +1,114 @@
+name: ${COMPOSE_PROJECT_NAME:-supply-chain-workspace}
+
+services:
+  postgres:
+    image: ${POSTGIS_IMAGE:-postgis/postgis:18-3.6}
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_ADMIN_USER:-workspace_admin}
+      POSTGRES_DB: supply_chain_ops
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_admin_password
+      TZ: UTC
+    ports:
+      - "127.0.0.1:${POSTGRES_HOST_PORT:-5433}:5432"
+    volumes:
+      # PostgreSQL 18 images use this parent volume path.
+      - postgres_data:/var/lib/postgresql
+      - ./infrastructure/postgres/20-workspace-roles.sh:/docker-entrypoint-initdb.d/20-workspace-roles.sh:ro
+    secrets:
+      - postgres_admin_password
+      - operations_app_password
+      - planning_app_password
+      - snapshot_reader_password
+    networks:
+      - operations
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 15s
+
+  routing:
+    profiles: [routing]
+    build:
+      context: ./osm-pathfinder
+      dockerfile: ../infrastructure/routing/Dockerfile
+    restart: unless-stopped
+    command: ["--demo"]
+    environment:
+      SERVER_HOST: 0.0.0.0
+      SERVER_PORT: "3000"
+      RUST_LOG: ${ROUTING_LOG_LEVEL:-info}
+    ports:
+      - "127.0.0.1:${ROUTING_HOST_PORT:-3000}:3000"
+    networks:
+      - planning
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "http://127.0.0.1:3000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
+
+  sandbox-api:
+    profiles: [simulation]
+    build:
+      context: ./logistics-sandbox
+      dockerfile: ../infrastructure/sandbox/backend.Dockerfile
+    restart: unless-stopped
+    environment:
+      PORT: "3001"
+      ROUTING_SERVICE_URL: http://routing:3000
+      PERSISTENCE_DRIVER: in-memory
+    ports:
+      - "127.0.0.1:${SANDBOX_API_PORT:-3001}:3001"
+    networks:
+      - planning
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "http://127.0.0.1:3001/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+      start_period: 20s
+    security_opt:
+      - no-new-privileges:true
+
+  sandbox-web:
+    profiles: [simulation]
+    build:
+      context: ./logistics-sandbox
+      dockerfile: ../infrastructure/sandbox/frontend.Dockerfile
+    restart: unless-stopped
+    environment:
+      VITE_API_URL: http://127.0.0.1:3001
+    ports:
+      - "127.0.0.1:${SANDBOX_WEB_PORT:-5173}:5173"
+    networks:
+      - planning
+    security_opt:
+      - no-new-privileges:true
+
+secrets:
+  postgres_admin_password:
+    file: ./.secrets/postgres-admin-password.txt
+  operations_app_password:
+    file: ./.secrets/operations-app-password.txt
+  planning_app_password:
+    file: ./.secrets/planning-app-password.txt
+  snapshot_reader_password:
+    file: ./.secrets/snapshot-reader-password.txt
+
+volumes:
+  postgres_data:
+
+networks:
+  operations:
+    driver: bridge
+  planning:
+    driver: bridge

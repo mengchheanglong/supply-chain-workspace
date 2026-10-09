@@ -1,0 +1,11 @@
+# Optional real OSM input. Setup validates the source exists before starting it.
+services:
+  routing:
+    command: ["--data", "/data/network.osm.pbf"]
+    volumes:
+      - type: bind
+        source: ${OSM_PBF_PATH:-./osm-pathfinder/data/cambodia-latest.osm.pbf}
+        target: /data/network.osm.pbf
+        read_only: true
+        bind:
+          create_host_path: false

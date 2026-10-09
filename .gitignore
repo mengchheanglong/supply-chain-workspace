@@ -1,0 +1,20 @@
+# Independently versioned repositories: never vendor them into this repository.
+/supply-chain-platform/
+/logistics-sandbox/
+/osm-pathfinder/
+/ecommerce-hive-nosql/
+/distribution-intelligence/
+
+# Machine-local configuration, credentials, datasets, and generated artifacts.
+/.env
+/.env.*
+!/.env.example
+/.secrets/
+/runtime/
+/data/
+node_modules/
+__pycache__/
+*.log
+.DS_Store
+Thumbs.db
+desktop.ini

@@ -1,0 +1,33 @@
+name: Validate workspace foundation
+on:
+  push:
+  pull_request:
+
+jobs:
+  config:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Supply routing checkout for independent build-context validation
+        uses: actions/checkout@v4
+        with:
+          repository: mengchheanglong/osm-pathfinder
+          ref: 741cd0f9e263b0ebf68cd6ec5d715349f2e14b29
+          path: osm-pathfinder
+      - name: Create ephemeral local configuration
+        shell: pwsh
+        run: ./scripts/Setup.ps1
+      - name: Validate Compose and workspace boundary
+        shell: pwsh
+        run: ./scripts/Validate.ps1
+      - name: Check PostgreSQL bootstrap syntax
+        run: bash -n infrastructure/postgres/20-workspace-roles.sh
+      - name: Start local PostGIS and exercise access boundaries
+        shell: pwsh
+        run: |
+          ./scripts/Workspace.ps1 up
+          ./scripts/Verify-Database.ps1
+      - name: Stop local services
+        if: always()
+        shell: pwsh
+        run: ./scripts/Workspace.ps1 down
