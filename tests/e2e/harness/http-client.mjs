@@ -1,13 +1,13 @@
 /**
  * @fileoverview Robust HTTP Client for E2E Cross-Service Interactions.
- * Interacts with osm-pathfinder (port 3000) and logistics-sandbox (port 3001)
+ * Interacts with osm-pathfinder (port 8000) and logistics-sandbox (port 8500)
  * with timeout controls, structured error reporting, and ping probes.
  */
 
 export class E2EHttpClient {
   constructor({
-    routingBaseUrl = process.env.ROUTING_BASE_URL || 'http://127.0.0.1:3000',
-    sandboxBaseUrl = process.env.SANDBOX_BASE_URL || 'http://127.0.0.1:3001',
+    routingBaseUrl = process.env.ROUTING_BASE_URL || 'http://127.0.0.1:8000',
+    sandboxBaseUrl = process.env.SANDBOX_BASE_URL || 'http://127.0.0.1:8500',
     timeoutMs = 5000,
   } = {}) {
     this.routingBaseUrl = routingBaseUrl.replace(/\/$/, '');

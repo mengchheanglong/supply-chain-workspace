@@ -116,7 +116,7 @@ async function main() {
   ];
 
   let matrix = null;
-  const routerUrl = 'http://127.0.0.1:3000';
+  const routerUrl = process.env.ROUTING_SERVICE_URL || 'http://127.0.0.1:8000';
 
   try {
     const res = await fetch(`${routerUrl}/api/matrix`, {

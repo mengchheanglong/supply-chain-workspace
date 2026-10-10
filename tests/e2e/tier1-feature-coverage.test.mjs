@@ -306,10 +306,10 @@ export function createTier1Suite({ workspaceRoot = process.cwd(), live = false }
   });
 
   suite.test('T1_ENV02_04: Container service URLs point to internal bridge hostnames', () => {
-    // Contract: Inside the planning network, sandbox-api communicates with routing via http://routing:3000
-    const containerRoutingUrl = 'http://routing:3000';
+    // Contract: Inside the planning network, sandbox-api communicates with routing via http://routing:8000
+    const containerRoutingUrl = 'http://routing:8000';
     assertFalse(containerRoutingUrl.includes('localhost'), 'Container URLs must not use localhost for inter-container communication');
-    assertTrue(containerRoutingUrl.includes('routing:3000'), 'Container URL must use DNS service name "routing"');
+    assertTrue(containerRoutingUrl.includes('routing:8000'), 'Container URL must use DNS service name "routing"');
   });
 
   suite.test('T1_ENV02_05: Workspace port registry contains zero port collisions', () => {

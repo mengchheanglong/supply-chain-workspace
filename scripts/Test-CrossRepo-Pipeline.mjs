@@ -68,8 +68,8 @@ async function runCrossRepoVerification() {
     tenantId = data.tenantId;
   }
 
-  const platformBaseUrl = 'http://127.0.0.1:3100';
-  const routingBaseUrl = 'http://127.0.0.1:3000';
+  const platformBaseUrl = process.env.PLATFORM_API_URL || 'http://127.0.0.1:8100';
+  const routingBaseUrl = process.env.ROUTING_SERVICE_URL || 'http://127.0.0.1:8000';
 
   // --------------------------------------------------------------------------
   // TEST 1: Master Data & Catalog Unification

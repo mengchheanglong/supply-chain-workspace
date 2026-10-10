@@ -16,5 +16,5 @@ WORKDIR /app
 COPY --from=build /build/target/release/osm-pathfinder /app/osm-pathfinder
 COPY frontend ./frontend
 USER routing
-EXPOSE 3000
+EXPOSE 8000
 ENTRYPOINT ["/app/osm-pathfinder"]

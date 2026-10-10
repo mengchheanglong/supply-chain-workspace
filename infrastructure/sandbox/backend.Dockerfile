@@ -21,7 +21,7 @@ COPY --from=build --chown=sandbox:sandbox /app/deploy/dist ./dist
 COPY --from=build --chown=sandbox:sandbox /app/deploy/node_modules ./node_modules
 COPY --from=build --chown=sandbox:sandbox /app/deploy/package.json ./package.json
 USER sandbox
-EXPOSE 3001
+EXPOSE 8500
 ENV NODE_ENV=production
-ENV PORT=3001
+ENV PORT=8500
 CMD ["node", "dist/index.js"]

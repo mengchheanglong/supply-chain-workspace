@@ -11,15 +11,15 @@
     { "path": "supply-chain-control-tower", "role": "Centralized real-time supply chain operations control tower and mission control", "state": "active", "remote": "https://github.com/mengchheanglong/supply-chain-control-tower.git" }
   ],
   "hostPorts": {
-    "routing": 3000,
-    "sandboxApi": 3007,
-    "ecommerceWeb": 3001,
-    "platformApi": 3100,
-    "platformWeb": 3101,
-    "solverApi": 3200,
-    "controlTower": 3300,
-    "marketplaceApi": 4000,
-    "postgres": 5433,
-    "sandboxWeb": 5173
+    "routing": 8000,
+    "platformApi": 8100,
+    "platformWeb": 8101,
+    "solverApi": 8200,
+    "controlTower": 8300,
+    "storefrontApi": 8400,
+    "storefrontWeb": 8401,
+    "sandboxApi": 8500,
+    "sandboxWeb": 8501,
+    "postgres": 5433
   }
 }

@@ -430,16 +430,16 @@ changes remain uncommitted; earlier workspace/sandbox work is preserved.
   - `node tests/e2e/runner.mjs`: **44 of 44 dual-track E2E tests PASS**.
 
 ### ADMIN-01: Standalone Supply Chain Control Tower & Cross-Ecosystem Connectors
-- Standalone Operations Control Tower on Port 3300 (`supply-chain-control-tower`):
+- Standalone Operations Control Tower on Port 8300 (`supply-chain-control-tower`):
   - Consolidated all administrative operations, merchant governance, analytics, live fleet tracking, and system health into a single unified control plane.
-  - E-commerce redirection: `ecommerce-storefront/web/src/app/admin` automatically routes administrators directly to `http://localhost:3300` with status messaging and countdown banner.
-  - Vite transparent reverse-proxy: Maps `/proxy/platform` -> `:3100`, `/proxy/routing` -> `:3000`, `/proxy/sandbox` -> `:3007`, `/proxy/intelligence` -> `:3200`, and `/proxy/ecommerce` -> `:3001` eliminating browser CORS constraints.
+  - E-commerce redirection: `ecommerce-storefront/web/src/app/admin` automatically routes administrators directly to `http://localhost:8300` with status messaging and countdown banner.
+  - Vite transparent reverse-proxy: Maps `/proxy/platform` -> `:8100`, `/proxy/routing` -> `:8000`, `/proxy/sandbox` -> `:8500`, `/proxy/intelligence` / `/proxy/optimizer` -> `:8200`, and `/proxy/ecommerce` -> `:8401` eliminating browser CORS constraints.
 - Real-Time Subsystem Connectors:
-  - Supply Chain Operations (`SupplyChainView`): Live querying of PostGIS regional hubs (`DC-PNH-01`, `DC-REP-01`, `DC-KOS-01`, `DC-BAT-01`) and enterprise catalog SKUs (`SKU-FOOD-01`, `SKU-ELEC-01`, `SKU-COLD-01`, `SKU-MED-01`) from PostgreSQL 18 with double-entry balance auditing.
-  - Physical Road Routing (`PathfinderRoutingView`): Real-time graph stats (86 nodes / 224 edges) and interactive road trajectory calculator via `POST /api/route` (e.g. 2,232m distance, 202s duration).
-  - VRPTW Optimization Solver (`OptimizationView`): Direct integration with `fleet-route-optimizer` on Port 3200 executing ALNS metaheuristic optimization runs with real tour sequences, vehicle reduction, and cost savings calculations.
-  - Digital-Twin Fleet Simulation (`FleetSimulationView`): Live status polling from `logistics-sandbox` on Port 3007 with remote execution controls (start, pause, resume, step, and reset).
-  - Orders Stream (`OrdersStreamView`): Live ingestion and display of operational platform fulfillment orders alongside e-commerce storefront transactions.
+  - Supply Chain Operations (`SupplyChainView`): Live querying of PostGIS regional hubs (`DC-PNH-01`, `DC-REP-01`, `DC-KOS-01`, `DC-BAT-01`) and enterprise catalog SKUs (`SKU-FOOD-01`, `SKU-ELEC-01`, `SKU-COLD-01`, `SKU-MED-01`) from PostgreSQL 18 with double-entry balance auditing on Port 8100.
+  - Physical Road Routing (`PathfinderRoutingView`): Real-time graph stats (86 nodes / 224 edges) and interactive road trajectory calculator via `POST /api/route` on Port 8000.
+  - VRPTW Optimization Solver (`OptimizationView`): Direct integration with `fleet-route-optimizer` on Port 8200 executing ALNS metaheuristic optimization runs with real tour sequences, vehicle reduction, and cost savings calculations.
+  - Digital-Twin Fleet Simulation (`FleetSimulationView`): Live status polling from `logistics-sandbox` on Port 8500 with remote execution controls (start, pause, resume, step, and reset).
+  - Orders Stream (`OrdersStreamView`): Live ingestion and display of operational platform fulfillment orders alongside e-commerce storefront transactions (Port 8401).
   - Microservice Health Matrix (`SystemHealthView`): Real-time concurrent health probing with round-trip latency measurements across all 5 ecosystem services.
 - Test Evidence:
   - `node scripts/Test-Admin-Connections.mjs`: **25 of 25 checks PASS, 0 FAIL** across all 6 ecosystem connection stages.

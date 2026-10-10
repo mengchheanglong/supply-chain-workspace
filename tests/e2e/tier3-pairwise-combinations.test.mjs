@@ -133,13 +133,13 @@ export function createTier3Suite({ workspaceRoot = process.cwd(), live = false }
     assertNotEqual(hashRun1, hashDifferentSeed, 'Simulation run with different seed must produce divergent SHA-256');
   });
 
-  suite.test('T3_PAIR_05: ROUTE-01 x ENV-02 — Internal bridge DNS resolution wires sandbox to routing:3000', () => {
+  suite.test('T3_PAIR_05: ROUTE-01 x ENV-02 — Internal bridge DNS resolution wires sandbox to routing:8000', () => {
     // Contract: sandbox container in planning network reaches router via container service URL
     const serviceHost = 'routing';
-    const servicePort = 3000;
+    const servicePort = 8000;
     const expectedInternalUrl = `http://${serviceHost}:${servicePort}/api/matrix`;
 
-    assertTrue(expectedInternalUrl.startsWith('http://routing:3000'), 'Inter-container routing URL must use service hostname');
+    assertTrue(expectedInternalUrl.startsWith('http://routing:8000'), 'Inter-container routing URL must use service hostname');
     assertFalse(expectedInternalUrl.includes('127.0.0.1'), 'Must not rely on host loopback inside container network');
   });
 
