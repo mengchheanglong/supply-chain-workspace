@@ -6,9 +6,9 @@
     { "path": "supply-chain-platform", "role": "Warehouse, inventory, fulfillment and distribution operations", "state": "foundation", "remote": null },
     { "path": "logistics-sandbox", "role": "Simulation and experiment runtime", "state": "existing", "remote": "https://github.com/mengchheanglong/logistics-sandbox.git", "inspectedCommit": "bd4c6bb08325b67d7af74bb5bcb6c1b79d13160c" },
     { "path": "osm-pathfinder", "role": "Shared physical road routing", "state": "existing", "remote": "https://github.com/mengchheanglong/osm-pathfinder.git", "inspectedCommit": "741cd0f9e263b0ebf68cd6ec5d715349f2e14b29" },
-    { "path": "ecommerce-hive-nosql", "role": "Independent reference/demo application", "state": "reference", "remote": "https://github.com/mengchheanglong/ecommerce-hive-nosql.git", "inspectedCommit": "293448f3a23711493c4a512850332c5abc791af2" },
-    { "path": "distribution-intelligence", "role": "Future optimization and decision support", "state": "foundation", "remote": null },
-    { "path": "platform-admin", "role": "Standalone ecosystem administration control plane", "state": "foundation", "remote": null }
+    { "path": "ecommerce-hive-nosql", "role": "Commercial storefront, polyglot customer portal & demand bridge", "state": "active", "remote": "https://github.com/mengchheanglong/ecommerce-hive-nosql.git", "inspectedCommit": "3fc6bf2" },
+    { "path": "distribution-intelligence", "role": "VRPTW optimization solver, financial cost-to-serve & scenario evaluation", "state": "active", "remote": null },
+    { "path": "platform-admin", "role": "Standalone ecosystem administration control plane", "state": "active", "remote": null }
   ],
   "hostPorts": {
     "routing": 3000,

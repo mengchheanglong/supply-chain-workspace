@@ -405,7 +405,45 @@ changes remain uncommitted; earlier workspace/sandbox work is preserved.
 - A* algorithm computed authentic road trajectory: **2,894.8m distance**, **144.3s duration**, **126 polyline coordinate points**.
 - Test evidence:
   - `cargo +stable-x86_64-pc-windows-gnu test --test real_pbf_tests`: **PASS**.
-  - Full Rust test suite: **52 of 52 tests pass** (45 unit/lib, 2 benchmark, 4 integration, 1 real PBF).
+
+### INT-01: End-to-End Cross-Repository Pipeline Integration & Double-Entry Ledger Allocation
+- Unified Master Data & Regional Depots:
+  - Synchronized 4 regional distribution hubs (`DC-PNH-01`, `DC-REP-01`, `DC-KOS-01`, `DC-BAT-01`) across `supply-chain-platform`, `ecommerce-hive-nosql`, and `logistics-sandbox`.
+  - Harmonized 4 enterprise catalog SKUs (`SKU-FOOD-01`, `SKU-ELEC-01`, `SKU-COLD-01`, `SKU-MED-01`) across all repositories with consistent weights, dimensions, and handling classes.
+- Storefront to Warehouse Core Bridge (`ecommerce-hive-nosql` -> `supply-chain-platform`):
+  - `SupplyChainBridgeService`: Dynamic master facility synchronization on startup, translating e-commerce orders into operational platform orders (`POST /api/v1/fulfillment/orders`) and reserving inventory in the PostgreSQL double-entry ledger (`POST /api/v1/fulfillment/allocate`).
+  - Automatic Compensating Rollback: On stock exhaustion (HTTP 409 Conflict), the bridge cancels any prior allocated lines (`POST /api/v1/fulfillment/cancel-allocation`) and marks the platform order `cancelled` (`POST /api/v1/fulfillment/cancel-order`), ensuring 0 leaked inventory locks in PostgreSQL.
+- Warehouse Core to Fleet Dispatch Bridge (`supply-chain-platform` -> `logistics-sandbox`):
+  - `OperationalPlatformReadClient`: Reads operational fulfillment orders via authenticated read-only endpoints without database write credentials (strictly enforcing AGENTS.md invariant P0-01).
+  - Unallocated order filtering: Excludes cancelled or zero-allocation orders from dispatch queues, preventing ghost vehicle movements.
+  - Registers customer pickups at exact PostGIS facility coordinates (e.g. `DC-PNH-01` lat: 11.5564, lon: 104.9282).
+- Fleet to Physical Road Routing (`logistics-sandbox` -> `osm-pathfinder`):
+  - Queries `http://127.0.0.1:3000/api/route` for authentic road polyline geometry and travel durations.
+  - Removed artificial route clamping, allowing realistic travel times (e.g. 121 seconds for 1.3 km) to govern discrete simulation progression.
+- Test Evidence & Automated Assertions:
+  - `node scripts/Test-CrossRepo-Pipeline.mjs`: **59 of 59 assertions PASS, 0 FAIL** across all 6 test stages (Master data, Stock allocation, Oversell rollback, Order ingestion, Physical routing, Regional network, and Isolation invariant).
+  - `pnpm --prefix ecommerce-hive-nosql/backend test`: **10 of 10 tests PASS**.
+  - `pnpm --prefix logistics-sandbox/backend test`: **83 of 83 tests PASS** across 12 test suites.
+  - `pnpm --prefix supply-chain-platform test`: **8 of 8 unit tests PASS**.
+  - `pnpm --prefix supply-chain-platform test:web`: **24 of 24 web tests PASS** across 9 test files.
+  - `pnpm --prefix supply-chain-platform check:boundaries` & `contracts:check`: **PASS**.
+  - `node tests/e2e/runner.mjs`: **44 of 44 dual-track E2E tests PASS**.
+
+### ADMIN-01: Standalone Platform Admin Control Plane & Cross-Ecosystem Connectors
+- Standalone Administration Hub on Port 3300 (`platform-admin`):
+  - Consolidated all administrative operations, merchant governance, analytics, live fleet tracking, and system health into a single unified control plane.
+  - E-commerce redirection: `ecommerce-hive-nosql/web/src/app/admin` automatically routes administrators directly to `http://localhost:3300` with status messaging and countdown banner.
+  - Vite transparent reverse-proxy: Maps `/proxy/platform` -> `:3100`, `/proxy/routing` -> `:3000`, `/proxy/sandbox` -> `:3007`, `/proxy/intelligence` -> `:3200`, and `/proxy/ecommerce` -> `:3001` eliminating browser CORS constraints.
+- Real-Time Subsystem Connectors:
+  - Supply Chain Operations (`SupplyChainView`): Live querying of PostGIS regional hubs (`DC-PNH-01`, `DC-REP-01`, `DC-KOS-01`, `DC-BAT-01`) and enterprise catalog SKUs (`SKU-FOOD-01`, `SKU-ELEC-01`, `SKU-COLD-01`, `SKU-MED-01`) from PostgreSQL 18 with double-entry balance auditing.
+  - Physical Road Routing (`PathfinderRoutingView`): Real-time graph stats (86 nodes / 224 edges) and interactive road trajectory calculator via `POST /api/route` (e.g. 2,232m distance, 202s duration).
+  - VRPTW Optimization Solver (`OptimizationView`): Direct integration with `distribution-intelligence` on Port 3200 executing ALNS metaheuristic optimization runs with real tour sequences, vehicle reduction, and cost savings calculations.
+  - Digital-Twin Fleet Simulation (`FleetSimulationView`): Live status polling from `logistics-sandbox` on Port 3007 with remote execution controls (start, pause, resume, step, and reset).
+  - Orders Stream (`OrdersStreamView`): Live ingestion and display of operational platform fulfillment orders alongside e-commerce storefront transactions.
+  - Microservice Health Matrix (`SystemHealthView`): Real-time concurrent health probing with round-trip latency measurements across all 5 ecosystem services.
+- Test Evidence:
+  - `node scripts/Test-Admin-Connections.mjs`: **25 of 25 checks PASS, 0 FAIL** across all 6 ecosystem connection stages.
+  - `pnpm --prefix platform-admin build`: **Clean build (0 errors, 1608 modules transformed)**.
 
 ## Existing baseline from source investigation
 

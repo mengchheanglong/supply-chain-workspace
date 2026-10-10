@@ -14,21 +14,19 @@ Follow the current user's request and applicable instructions when selecting wor
 - supply-chain-platform owns real warehouse, inventory, fulfillment and distribution operations.
 - logistics-sandbox owns simulation, deterministic experiments and replay.
 - osm-pathfinder owns physical road graph, routing costs and geometry.
-- distribution-intelligence is planned, not implemented: future solver/decision layer.
-- ecommerce-hive-nosql is a retired independent e-commerce reference. Its final maintenance
-  commit is pushed; do not resume feature work or convert it into the operational platform.
-  Reuse reviewed patterns selectively in supply-chain-platform.
+- distribution-intelligence owns constraint optimization (VRPTW), financial cost-to-serve modeling, and scenario evaluation (OPT-01, EVAL-01).
+- ecommerce-hive-nosql owns the multi-tenant commercial storefront and customer checkout engine. It actively bridges storefront demand into supply-chain-platform fulfillment and double-entry stock allocation via SupplyChainBridgeService, and notifies logistics-sandbox for fleet dispatch.
+- platform-admin owns the standalone ecosystem administration control plane (port 3300).
 - Each application remains a separate Git repository. Root Git must not track nested repositories or runtime data.
 
 ## Operational and planning boundary
 
-- Simulation workers must not receive operational write credentials.
-- Copy approved read-only data into immutable, tenant-scoped planning snapshots.
+- Simulation workers and solvers must not receive operational write credentials.
+- Copy approved read-only data into immutable, tenant-scoped planning snapshots (DATA-02).
 - Keep proposed plans distinct from actual orders, stock, shipments and GPS.
-- Production write-back is future work, through a separately scoped, audited exporter.
-- Simulator runtime write isolation is tested (P0-01). Immutable snapshots, tenant
-  isolation, replay and deployment egress controls remain pending; see docs/BACKLOG.md
-  and docs/SETUP_STATUS.md for evidence.
+- Storefront demand bridges into operational fulfillment via authenticated API contracts with tenant scoping and double-entry ledger allocation.
+- Production write-back from simulation/solvers is future work, through a separately scoped, audited exporter.
+- Simulator runtime write isolation is tested (P0-01). Immutable snapshots (DATA-02), deterministic replay (P0-04), routing matrices (ROUTE-01), solver optimization (OPT-01), financial evaluation (EVAL-01), enterprise identity/audit (PILOT-01), and isolated container egress (ENV-02) have local evidence in docs/SETUP_STATUS.md.
 - Never turn a routing failure into an unmarked straight line or a synthetic route into a validated recommendation.
 
 ## Implementation rules
@@ -54,7 +52,7 @@ Follow the current user's request and applicable instructions when selecting wor
 - ./scripts/Doctor.ps1 — inspect toolchain, Docker engine, repositories and dependency links.
 - ./scripts/Verify-Database.ps1 — exercise local database grants with a rolled-back probe.
 - ./scripts/Repair-Dependencies.ps1 — reinstall existing locked dependencies in this checkout.
-- ./scripts/Workspace.ps1 up [-Routing] [-RealOsm] — start configured local infrastructure.
+- ./scripts/Workspace.ps1 up [-Routing] [-RealOsm] [-Simulation] — start configured local infrastructure.
 - ./scripts/Workspace.ps1 down — stop workspace services; keep named volumes.
 
 Do not claim services, enterprise features, tests, security gates or production readiness

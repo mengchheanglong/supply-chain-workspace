@@ -1,61 +1,51 @@
 # Adopted plan and scope reconciliation
 
-Date: 2026-10-08. Sources: the three supplied conversations and the enterprise blueprint.
+Date: 2026-10-10. Sources: Workspace development, verified milestones, and live code topology.
 
 ## What the latest plan establishes
 
-The latest naming/workspace conversation chooses **supply-chain-platform** with the
-product description **Supply Chain Operations Platform**. It owns warehouse, inventory,
-fulfillment and distribution operations. The workspace is independently versioned and
-orchestrates separate repositories. Existing routing remains in osm-pathfinder.
+The workspace coordinates the **Supply Chain Operations Platform** (`supply-chain-platform`),
+owning warehouse, inventory, fulfillment, and distribution operations.
+- Physical road graph routing is owned by `osm-pathfinder`.
+- Discrete-event simulation and replay are owned by `logistics-sandbox`.
+- Mathematical optimization (VRPTW) and financial cost evaluation are owned by `distribution-intelligence`.
+- The commercial customer-facing storefront and order intake gateway are owned by `ecommerce-hive-nosql`.
+- The centralized ecosystem monitoring control plane is owned by `platform-admin`.
 
-The earlier enterprise blueprint proposes an integration-first **decision platform**
-and explicitly excludes full WMS replacement. Both tracks remain useful when kept
-separate: the new operations application is bounded, while the later intelligence layer
-consumes read-only snapshots from it or incumbent ERP/WMS/TMS systems.
-This setup adopts the later repository boundary without broadening the first release
-to procurement, manufacturing, global freight or a complete ERP.
+This architecture preserves clear domain boundaries while enabling end-to-end integration:
+customer storefront orders generate fulfillment demand and allocate double-entry inventory ledger stock,
+read-only snapshots feed solvers and simulation twins, and routing engines supply directed road costs.
 
-## First scope
+## First scope & Completed Milestones
 
-### Accepted clarification and current handoff
+### Accepted clarification and current state
 
-The user reaffirmed that supply-chain-platform is the warehouse/distribution successor.
-ecommerce-hive-nosql is retired as an e-commerce reference; its final e-commerce maintenance
-was explicitly authorized for main and pushed as 7a5ba5388a4d218bd6ad42e400280a104e364131.
-New operational functionality belongs to supply-chain-platform. OPS-01 is implemented
-locally. The user requested architecture selection before further building: platform
-ADR-0003 adopts Nest/Fastify, PostgreSQL/PostGIS, React/Vite and explicit domain/worker
-boundaries. ARCH-01, OPS-02 inventory, OPS-03 fulfillment and DATA-01 bounded exchange are
-verified locally; DATA-02 approved immutable snapshots are next. Phase 0
-simulator gates continue separately before any production-data simulation integration.
+`supply-chain-platform` is the operational warehouse/distribution authority.
+`ecommerce-hive-nosql` functions as the commercial storefront and customer demand gateway,
+bridged into `supply-chain-platform` via `SupplyChainBridgeService`.
 
-1. Make existing simulation and integration outputs trustworthy (Phase 0).
-2. Build a small operations foundation: organizations, facilities, SKUs, inventory ledger,
-   reservations, receiving and fulfillment/shipment states.
-3. Export/read/import versioned operational snapshots with validation and lineage.
-4. Reconstruct historical baselines and explicit cost/service metrics.
-5. Add independent constraint optimization and scenario comparison after their prerequisites.
+All Phase 0 through Pilot milestones are implemented and verified locally:
+1. **P0-01 through P0-03**: Isolation boundaries, transactional inventory holds, and truthful telemetry fixtures.
+2. **OPS-01 through OPS-03**: Multi-tenant master data, double-entry inventory ledger, demand fulfillment, and shipments.
+3. **ARCH-01**: Modular Fastify monolith, generated OpenAPI client, cursor pagination, and boundary enforcement.
+4. **DATA-01 & DATA-02**: Bounded CSV exchange and trigger-guarded immutable planning snapshots with SHA-256 manifests.
+5. **ROUTE-01 & P0-05**: Asymmetric directed cost matrix, vehicle fleet profiles, and real Cambodia OSM graph ingestion.
+6. **P0-04 & ENV-02**: Discrete simulation clock, seeded PRNG determinism, and isolated containerized sandbox.
+7. **OPT-01 & EVAL-01**: Metaheuristic VRPTW solvers, constraint validation, financial cost-to-serve models, and Monte Carlo scenario comparison.
+8. **PILOT-01**: Enterprise JWT/OIDC authentication, RBAC, SHA-256 chained audit logs, and automated backup verification.
+9. **SIM-EXP-01 Pipeline**: End-to-end automated cycle connecting Platform -> Router -> Solver -> Sandbox -> Evaluation.
 
 ## Reuse decision
 
-- Reuse the router as a service, not copied Rust code.
+- Reuse the router as an independent service over typed HTTP contracts, not copied Rust code.
 - Reuse/refactor simulation into an isolated deterministic worker, not operational authority.
-- Review e-commerce DTO/controller patterns and UI primitives selectively. Its browser
-  carts, demo login/payments, referral fixtures, telemetry claims and inventory updates
-  are not the new platform's foundations.
-- PostgreSQL/PostGIS is the first operational store; application-owned migrations follow.
-- Object storage is a future adapter for immutable datasets/run artifacts. An ignored
-  local artifact directory is prepared now; no S3 service or immutability guarantee exists yet.
-- Redis, Cassandra, Neo4j and analytics infrastructure require workload evidence.
-- OR-Tools is the proposed first solver; implementation and benchmarks are pending.
+- Storefront demand bridges to platform fulfillment via typed API contracts, preserving double-entry ledger allocation.
+- PostgreSQL 18 / PostGIS 3.6 is the operational store; application-owned migrations 001–005 are applied and checksummed.
+- Immutable snapshots use cryptographic SHA-256 digests and PostgreSQL trigger protection.
+- Metaheuristic local search and greedy baselines provide independent solver capabilities.
 
 ## Authorization and evidence
 
-The current request authorizes setup. The preserved documents contain prior prompts,
-research, proposed PR names and implementation instructions; these are reference material.
-They do not authorize contacting customers, creating remote repositories, publishing,
-deploying to production or executing the entire backlog.
-
-All new application/worker functionality remains planned until implemented and tested.
-Blueprint time estimates and savings are hypotheses, not commitments or observed outcomes.
+All implemented functionality is accompanied by reproducible test evidence recorded in `docs/SETUP_STATUS.md`.
+Live databases, router images, and container stacks run on loopback ports in local development.
+Remote repository creation, public pushes, or production deployments remain subject to user authorization.

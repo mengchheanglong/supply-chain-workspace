@@ -1,22 +1,21 @@
 # Supply Chain Workspace
 
 Local development and orchestration for the **Supply Chain Operations Platform** and
-its independent routing and simulation services. This is a multi-repository workspace,
-not a merger of the application codebases.
+its integrated routing, simulation, optimization, administrative, and storefront services. This is a multi-repository workspace,
+not an unorganized monorepo merger.
 
 ## Current foundation
 
-- Parent repository: setup scripts, local Compose, repository/port registry, architecture and backlog.
-- `supply-chain-platform/`: OPS-01 API/UI, scoped credentials, facilities/SKUs and app-owned migrations implemented locally; ARCH-01 alignment verified.
-- `logistics-sandbox/`: existing simulator; upstream writes disabled with local regression evidence; further Phase 0 correctness work is pending.
-- `osm-pathfinder/`: existing router; optional container uses the demo graph unless real data is explicitly selected.
-- `ecommerce-hive-nosql/`: retired e-commerce reference; final maintenance pushed to main; no connection to the operational database.
-- `distribution-intelligence/`: future boundary, intentionally not created yet.
+- Parent repository: setup scripts, local Compose profiles, repository/port registry, architecture, cross-repository pipeline (`Run-Pipeline.mjs`), and backlog.
+- `supply-chain-platform/`: Operational authority with NestJS/Fastify API (port 3100), React 19 UI (port 3101), PostGIS 3.6, double-entry inventory ledger (OPS-02), fulfillment workflows (OPS-03), bounded CSV exchange (DATA-01), immutable planning snapshots (DATA-02), and enterprise identity/audit (PILOT-01).
+- `logistics-sandbox/`: Discrete-event digital twin simulator (port 3001/5173) with decoupled `SimulationClock`, seeded PRNG, strict routing (P0-05), deterministic replay (P0-04), and containerized isolation under Compose profile `simulation` (ENV-02).
+- `osm-pathfinder/`: High-performance Rust routing engine (port 3000) under Compose profile `routing`, supporting Contraction Hierarchies, A*, TDSP traffic models, fleet profiles, and directed cost matrices (ROUTE-01) over real Cambodia OSM data.
+- `distribution-intelligence/`: Constraint optimization worker with VRPTW solvers (Greedy baseline vs. Metaheuristic 2-opt, OPT-01), independent constraint validation, and financial cost-to-serve Monte Carlo evaluation (EVAL-01).
+- `ecommerce-hive-nosql/`: Active polyglot customer storefront and merchant portal (port 4000/3001). Customer orders automatically bridge into `supply-chain-platform` fulfillment and double-entry stock allocation via `SupplyChainBridgeService`, while notifying `logistics-sandbox` for fleet dispatch.
+- `platform-admin/`: Standalone administrative control plane (port 3300) providing unified observability and management across stores, operations, live order streams, routing, simulation, optimization, and system telemetry.
 
-Default Compose starts **PostgreSQL 18 / PostGIS 3.6 only**. The `routing` profile
-adds the router. The application stack is not yet containerized by this workspace.
-Legacy simulation and marketplace startup is deliberately separate until endpoint,
-egress and correctness gates are implemented. See [setup status](docs/SETUP_STATUS.md).
+Default Compose starts **PostgreSQL 18 / PostGIS 3.6**. The `routing` profile
+adds the router. The `simulation` profile adds the isolated sandbox API and web UI. See [setup status](docs/SETUP_STATUS.md).
 
 ## Getting started (PowerShell)
 
@@ -43,13 +42,17 @@ Repeated setup preserves existing configuration and passwords.
 # Use a real local .osm.pbf file instead (set OSM_PBF_PATH in .env first).
 ./scripts/Workspace.ps1 up -RealOsm
 
+# Start isolated simulation containers.
+./scripts/Workspace.ps1 up -Simulation
+
 ./scripts/Workspace.ps1 status
 ./scripts/Workspace.ps1 logs
 ./scripts/Workspace.ps1 down
 ```
 
-The underlying commands are `docker compose up -d --build --wait` and
-`docker compose --profile routing up -d --build --wait`. The real-data overlay is
+The underlying commands are `docker compose up -d --build --wait`,
+`docker compose --profile routing up -d --build --wait`, and
+`docker compose --profile simulation up -d --build --wait`. The real-data overlay is
 `docker compose -f compose.yaml -f compose.osm.yaml --profile routing up -d --build --wait`.
 `down` preserves data. Do not use `down -v` unless intentionally deleting local databases.
 
@@ -58,29 +61,25 @@ The underlying commands are `docker compose up -d --build --wait` and
 | Service | Host endpoint | Container endpoint | Current state |
 |---|---|---|---|
 | PostgreSQL | `127.0.0.1:5433` | `postgres:5432` | Configured |
-| Router | `http://127.0.0.1:3000` | `http://routing:3000` | Optional `routing` profile |
-| Platform API / web | `3100` / `3101` | Host apps; containerization pending | OPS-01 implemented |
-| Sandbox API / web | `3001` / `5173` | To be added | Existing host apps |
-| Marketplace API / web | `4000` / `3002` | To be added | Reference host apps |
+| Router (osm-pathfinder) | `http://127.0.0.1:3000` | `http://routing:3000` | Profile `routing` (ROUTE-01) |
+| Sandbox API / web | `3001` / `5173` | `sandbox-api:3001` / `sandbox-web:5173` | Profile `simulation` (ENV-02) |
+| Platform API / web | `3100` / `3101` | Host apps | OPS-01 through PILOT-01 implemented |
+| Platform Admin HQ | `3300` | Host app | Active control plane |
+| Storefront API / web (ecommerce-hive-nosql) | `4000` / `3001` | Host apps | Active storefront with supply chain bridge |
 
-The marketplace currently defaults to web port 3001, conflicting with the sandbox.
-Use `pnpm exec next dev -p 3002` from `ecommerce-hive-nosql/web` for standalone work.
-The registry reserves 3002; it does not rewrite the marketplace's existing scripts.
+When running the sandbox web on 5173 and storefront web concurrently, the storefront defaults to 3001 or 3002.
+`workspace.json` reserves 3002 for standalone marketplace development.
 
 | Database / role | Purpose | Password file |
 |---|---|---|
-| `supply_chain_ops` / `operations_app` | Future transactional application | `.secrets/operations-app-password.txt` |
+| `supply_chain_ops` / `operations_app` | Transactional operational application | `.secrets/operations-app-password.txt` |
 | `supply_chain_ops` / `snapshot_reader` | Read-only extraction of application tables | `.secrets/snapshot-reader-password.txt` |
-| `distribution_planning` / `planning_app` | Future copied snapshots and experiment metadata | `.secrets/planning-app-password.txt` |
+| `distribution_planning` / `planning_app` | Copied planning snapshots and experiment metadata | `.secrets/planning-app-password.txt` |
 | `workspace_admin` | Local bootstrap/admin only | `.secrets/postgres-admin-password.txt` |
 
 Application tables must be owned by `operations_app` for its default read-only grants
-to apply. New schemas require equivalent explicit grants. No business schema/migration
-is installed by bootstrap. supply-chain-platform now owns facility/SKU/identity/audit
-migrations and tested master-data tenant policies. Snapshot extraction and production
-tenant authorization remain separate gates.
-The database names are fixed by the bootstrap. Initialization runs only on a fresh volume;
-changing secret files does not rotate an already initialized database password.
+to apply. supply-chain-platform owns facility, SKU, inventory, fulfillment, and snapshot migrations.
+Initialization runs only on a fresh volume; changing secret files does not rotate an already initialized database password.
 
 ## Repository workflow
 
@@ -93,32 +92,25 @@ Moving the existing repos left dependency junctions pointing at their old locati
 Inspect with `Doctor.ps1`; `Repair-Dependencies.ps1` performs a frozen-lockfile install
 in the current paths. It changes generated dependencies, not application source.
 
-## Working plan
+## Working plan & Milestone Verification
 
 Read [AGENTS.md](AGENTS.md), [plan reconciliation](docs/PLAN.md),
 [architecture](docs/ARCHITECTURE.md), [prioritized backlog](docs/BACKLOG.md),
-[current setup evidence](docs/SETUP_STATUS.md), and the
-[new platform README](supply-chain-platform/README.md).
+and [current setup evidence](docs/SETUP_STATUS.md).
 
-Simulation egress isolation, marketplace maintenance and platform OPS-01 have local
-evidence. The [platform architecture](supply-chain-platform/docs/ARCHITECTURE.md) is now
-selected. ARCH-01 is now verified locally with domain boundaries, Fastify,
-generated HTTP contracts, scoped frontend state and pagination. OPS-03 fulfillment/shipping
-now passes locally; see [workflow evidence](supply-chain-platform/docs/FULFILLMENT_VERIFICATION.md).
-DATA-01 bounded CSV staging/export also passes locally; see
-[exchange evidence](supply-chain-platform/docs/DATA_EXCHANGE_VERIFICATION.md).
-Main development next implements DATA-02 approved immutable planning snapshots.
-OPS-02 inventory/reservations also pass locally;
-see [inventory evidence](supply-chain-platform/docs/INVENTORY_VERIFICATION.md). Simulator determinism/routing remain independent prerequisites
-for later planning integration. Approved immutable snapshots remain pending.
-
-The supplied blueprint is preserved verbatim in [docs/reference](docs/reference/README.md).
-Its market claims and older source audit are historical proposals, not current test results.
+- **OPS-01 through OPS-03**: Implemented and verified locally in `supply-chain-platform` (master data, double-entry inventory ledger, demand fulfillment, and observed shipments).
+- **DATA-01 & DATA-02**: Bounded CSV exchange and trigger-guarded immutable planning snapshots with SHA-256 manifests verified locally.
+- **P0-04 & P0-05**: Logistics sandbox discrete clock, seeded PRNG determinism, canonical event hashing, and strict routing validation verified locally.
+- **ROUTE-01**: Directed cost matrix, vehicle fleet profiles, and real Cambodia OSM ingestion verified locally in `osm-pathfinder`.
+- **ENV-02**: Containerized sandbox with non-root UID 10001 and planning-only bridge network isolation verified locally.
+- **OPT-01 & EVAL-01**: VRPTW solver (Greedy vs. 2-opt), constraint validator, financial cost-to-serve models, and multi-seed Monte Carlo scenario comparison verified locally in `distribution-intelligence`.
+- **PILOT-01**: OIDC/JWT authentication, RBAC, tamper-evident SHA-256 audit chaining, and automated backup verification verified locally.
+- **SIM-EXP-01 Pipeline**: End-to-end operational planning and execution cycle verified across all repositories via `node scripts/Run-Pipeline.mjs`.
 
 ## Infrastructure references
 
-Compose profile and health-check behavior follows the official
+Compose profile and health-check behavior follows official Docker documentation for
 [profiles](https://docs.docker.com/compose/how-tos/profiles/) and
-[startup order](https://docs.docker.com/compose/how-tos/startup-order/) documentation.
+[startup order](https://docs.docker.com/compose/how-tos/startup-order/).
 Secrets use [Compose file secrets](https://docs.docker.com/compose/how-tos/use-secrets/).
 The PostgreSQL 18 volume path follows the [PostGIS image documentation](https://github.com/postgis/docker-postgis).

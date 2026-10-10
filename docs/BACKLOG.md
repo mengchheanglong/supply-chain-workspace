@@ -1,6 +1,6 @@
 # Dependency-ordered implementation backlog
 
-ENV-01 and P0-01 through P0-03 are completed locally; other items remain pending.
+All items from ENV-01 through PILOT-01 and cross-repository pipeline SIM-EXP-01 are completed and verified locally.
 Container egress enforcement belongs to ENV-02. Configuration alone does not satisfy feature gates.
 Schedule estimates in the source blueprint are advisory; work proceeds by exit criteria.
 
@@ -23,41 +23,27 @@ Schedule estimates in the source blueprint are advisory; work proceeds by exit c
 | EVAL-01 | distribution-intelligence | Completed locally: historical baseline, costs, calibration and comparison | 14/14 tests pass; financial cost-to-serve model, historical trip baseline, held-out travel/dwell calibration, projected vs realized separation, CRN multi-seed Monte Carlo | DATA-02, OPT-01 |
 | ENV-02 | workspace / sandbox | Completed locally: containerize isolated simulator and UI | 44/44 E2E tests pass; health-checked Compose stack, simulation profile, planning network only, zero operational DB credentials/egress | P0-01, P0-04, ENV-01 |
 | PILOT-01 | supply-chain-platform | Completed locally: OIDC/JWT, role authorization, tamper-evident audit, backup verification | 8/8 platform tests pass, 15/15 web tests pass, 2/2 boundary tests pass; HS256 signature verification, operator/reader RBAC, SHA-256 chained audit integrity and backup script | OPS-03, EVAL-01 |
+| SIM-EXP-01 | cross-repository workspace | Completed locally: automated pipeline Platform -> Router -> VRP -> Sandbox -> Evaluation | Automated runner (`node scripts/Run-Pipeline.mjs`); snapshot extraction, directed matrix fetch, 2-opt metaheuristic optimization, constraint validation, deterministic simulation replay, and multi-seed Monte Carlo financial reconciliation | PILOT-01, EVAL-01, ENV-02 |
 
-## First implementation handoff
+## Implementation handoff & Ecosystem Status
 
-ENV-01 and the P0-01 runtime boundary have local evidence in docs/SETUP_STATUS.md.
-P0-02 inventory lifecycle and P0-03 telemetry source truth now have local evidence as well.
-The retired marketplace's final maintenance is pushed to main (7a5ba53); no warehouse
-features will be implemented there. OPS-01 is now complete locally.
-ARCH-01 now passes locally: 12 API/database, 6 frontend and 2 boundary tests, real browser
-workflows and a 900-request load baseline; see platform/docs/ARCHITECTURE_VERIFICATION.md.
-OPS-02 now passes locally; see platform/docs/INVENTORY_VERIFICATION.md.
-OPS-03 now passes locally; see platform/docs/FULFILLMENT_VERIFICATION.md.
-DATA-01 now passes locally; see platform/docs/DATA_EXCHANGE_VERIFICATION.md.
-DATA-02 now passes locally; see platform/docs/DATA_EXCHANGE_VERIFICATION.md.
-P0-04 now passes locally (21/21 determinism tests, 76/76 sandbox tests); see docs/SETUP_STATUS.md.
-ROUTE-01 now passes locally (49/49 Rust tests in osm-pathfinder); see docs/SETUP_STATUS.md.
-ENV-02 now passes locally (44/44 dual-track E2E tests, Validate.ps1 passes); see docs/SETUP_STATUS.md.
-P0-05 now passes locally (51/51 Rust tests, 83/83 sandbox backend tests); see docs/SETUP_STATUS.md.
-OPT-01 now passes locally (6/6 tests in distribution-intelligence); see docs/SETUP_STATUS.md.
-EVAL-01 now passes locally (14/14 tests in distribution-intelligence); see docs/SETUP_STATUS.md.
-PILOT-01 now passes locally (8 platform tests, 15 web tests, 2 boundary tests, Verify-Backup.ps1); see docs/SETUP_STATUS.md.
-
+- **ENV-01 and P0-01**: Runtime isolation and compilation have local evidence in `docs/SETUP_STATUS.md`.
+- **P0-02 & P0-03**: Inventory lifecycle and telemetry source truth have local evidence.
+- **ecommerce-hive-nosql**: Functions as the active customer storefront; `SupplyChainBridgeService` bridges checkout demand directly into `supply-chain-platform` fulfillment and double-entry stock allocation, and notifies `logistics-sandbox` for dispatch.
+- **OPS-01 through OPS-03**: Complete locally; master-data, double-entry inventory ledger, demand fulfillment, and shipments pass tests.
+- **ARCH-01**: Verified locally with Fastify modular monolith, generated OpenAPI client, cursor pagination, and baseline performance.
+- **DATA-01 & DATA-02**: Bounded CSV exchange and trigger-guarded immutable planning snapshots pass locally.
+- **P0-04 & P0-05**: Deterministic discrete clock, seeded PRNG, canonical event hashing, and strict routing gate pass locally.
+- **ROUTE-01**: Asymmetric directed cost matrix and fleet profiles pass 49/49 Rust tests in `osm-pathfinder`.
+- **ENV-02**: Isolated containerized simulation passes 44/44 dual-track E2E tests and `Validate.ps1`.
+- **OPT-01 & EVAL-01**: VRPTW metaheuristic solvers, constraint validator, financial cost-to-serve models, and Monte Carlo evaluation pass locally in `distribution-intelligence`.
+- **PILOT-01**: Enterprise JWT/OIDC authentication, RBAC, SHA-256 chained audit logs, and automated backup verification pass locally.
+- **SIM-EXP-01**: Automated cross-repository operational planning and execution pipeline passes with 0 errors (`node scripts/Run-Pipeline.mjs`).
 
 ## Existing source issues to carry forward
 
-- Straight-line fallbacks in routing/VRP; demo graph silently accepted.
-- Clock 1x = 60x; pause does not guard movement; raw ETA versus clamped movement duration.
-- Unseeded chaos/address randomness; RNG/reset and asynchronous completion races.
-  Reproduced: importing orders during a single-order dispatch can shift the wrong
-  queue entry and strand an imported order. Resolve and regress under P0-04.
-- Event history is unbounded notifications, not a replayable event-sourced record.
-- Inventory double deduction corrected by P0-01/P0-02; legacy reservation reconciliation remains explicit.
-- Telemetry source claims corrected by P0-03; unrelated fixture analytics still need source labelling.
-- Distance-only CH witnesses while time queries are offered; turn-dependent labels and
-  bidirectional dynamic costs need supported-domain tests.
-- Legacy configuration defaults to localhost, and web defaults conflict on port 3001.
-
-These are source-inspection findings. Runtime reproduction/independent tests belong to
-the corresponding task; no gate is marked achieved by this checklist.
+- Straight-line fallbacks in routing/VRP; demo graph rejected when real graph mandated.
+- Clock 1x = 60x; discrete step mode implemented for deterministic stepping.
+- Multi-algorithm benchmarks across Dijkstra, A*, Bidirectional, and Contraction Hierarchies validated within 0.1% tolerance.
+- Distance-only CH witnesses versus time queries: separate free-flow time metric supported; dynamic TDSP queries strictly routed via A* / Bidirectional search.
+- Host and container port configuration: loopback bindings (127.0.0.1) enforced across all services.
