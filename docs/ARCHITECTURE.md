@@ -9,7 +9,7 @@
 | Clock, actors, incidents, seeded scenarios, run events | logistics-sandbox | Synthetic world & digital twin |
 | Constraint optimization (VRPTW), cost models, scenario comparisons | distribution-intelligence | Mathematical optimization & evaluation |
 | Commercial storefront, customer checkout & demand bridge | ecommerce-hive-nosql | Commercial storefront authority |
-| Ecosystem administration & cross-service monitoring | platform-admin | Ecosystem control plane |
+| Operations control tower, ecosystem monitoring & interactive dispatch | supply-chain-control-tower | Ecosystem operations control tower |
 | Local bootstrapping, containers, environment, common docs | supply-chain-workspace | Development orchestration |
 
 ```mermaid
@@ -52,8 +52,8 @@ flowchart TD
     Export -.->|Read-Only Replay| Sim
   end
 
-  subgraph Admin["Ecosystem Control Plane (platform-admin :3300)"]
-    ControlPlane["Platform Admin HQ"]
+  subgraph Admin["Operations Control Tower (supply-chain-control-tower :3300)"]
+    ControlPlane["Supply Chain Control Tower"]
     ControlPlane -.-> Commercial
     ControlPlane -.-> Operational
     ControlPlane -.-> Routing

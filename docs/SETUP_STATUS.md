@@ -429,8 +429,8 @@ changes remain uncommitted; earlier workspace/sandbox work is preserved.
   - `pnpm --prefix supply-chain-platform check:boundaries` & `contracts:check`: **PASS**.
   - `node tests/e2e/runner.mjs`: **44 of 44 dual-track E2E tests PASS**.
 
-### ADMIN-01: Standalone Platform Admin Control Plane & Cross-Ecosystem Connectors
-- Standalone Administration Hub on Port 3300 (`platform-admin`):
+### ADMIN-01: Standalone Supply Chain Control Tower & Cross-Ecosystem Connectors
+- Standalone Operations Control Tower on Port 3300 (`supply-chain-control-tower`):
   - Consolidated all administrative operations, merchant governance, analytics, live fleet tracking, and system health into a single unified control plane.
   - E-commerce redirection: `ecommerce-hive-nosql/web/src/app/admin` automatically routes administrators directly to `http://localhost:3300` with status messaging and countdown banner.
   - Vite transparent reverse-proxy: Maps `/proxy/platform` -> `:3100`, `/proxy/routing` -> `:3000`, `/proxy/sandbox` -> `:3007`, `/proxy/intelligence` -> `:3200`, and `/proxy/ecommerce` -> `:3001` eliminating browser CORS constraints.
@@ -443,7 +443,7 @@ changes remain uncommitted; earlier workspace/sandbox work is preserved.
   - Microservice Health Matrix (`SystemHealthView`): Real-time concurrent health probing with round-trip latency measurements across all 5 ecosystem services.
 - Test Evidence:
   - `node scripts/Test-Admin-Connections.mjs`: **25 of 25 checks PASS, 0 FAIL** across all 6 ecosystem connection stages.
-  - `pnpm --prefix platform-admin build`: **Clean build (0 errors, 1608 modules transformed)**.
+  - `pnpm --prefix supply-chain-control-tower build`: **Clean build (0 errors, 1608 modules transformed)**.
 
 ## Existing baseline from source investigation
 

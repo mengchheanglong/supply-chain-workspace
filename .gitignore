@@ -4,7 +4,7 @@
 /osm-pathfinder/
 /ecommerce-hive-nosql/
 /distribution-intelligence/
-/platform-admin/
+/supply-chain-control-tower/
 
 # Machine-local configuration, credentials, datasets, and generated artifacts.
 /.env

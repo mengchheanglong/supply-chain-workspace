@@ -10,7 +10,7 @@ owning warehouse, inventory, fulfillment, and distribution operations.
 - Discrete-event simulation and replay are owned by `logistics-sandbox`.
 - Mathematical optimization (VRPTW) and financial cost evaluation are owned by `distribution-intelligence`.
 - The commercial customer-facing storefront and order intake gateway are owned by `ecommerce-hive-nosql`.
-- The centralized ecosystem monitoring control plane is owned by `platform-admin`.
+- The centralized operations control tower and ecosystem cockpit is owned by `supply-chain-control-tower`.
 
 This architecture preserves clear domain boundaries while enabling end-to-end integration:
 customer storefront orders generate fulfillment demand and allocate double-entry inventory ledger stock,

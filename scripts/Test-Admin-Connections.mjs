@@ -36,8 +36,8 @@ async function testAdminConnections() {
     const res = await fetch('http://127.0.0.1:3300/');
     assert(res.ok, `platform-admin responds HTTP ${res.status} on http://localhost:3300`);
     const text = await res.text();
-    assert(text.includes('Platform Administration HQ') || text.includes('Ecosystem Control Plane'),
-      'HTML title and meta tags verify Platform Admin Control Plane branding');
+    assert(text.includes('Supply Chain Control Tower') || text.includes('Platform Administration HQ') || text.includes('Ecosystem Control Plane'),
+      'HTML title and meta tags verify Control Tower branding');
   } catch (err) {
     assert(false, `platform-admin failed to respond: ${err.message}`);
   }

@@ -3,20 +3,21 @@
   "product": "Supply Chain Operations Platform",
   "workspaceRole": "Independent-repository development and orchestration",
   "repositories": [
-    { "path": "supply-chain-platform", "role": "Warehouse, inventory, fulfillment and distribution operations", "state": "foundation", "remote": null },
+    { "path": "supply-chain-platform", "role": "Warehouse, inventory, fulfillment and distribution operations", "state": "foundation", "remote": "https://github.com/mengchheanglong/supply-chain-platform.git" },
     { "path": "logistics-sandbox", "role": "Simulation and experiment runtime", "state": "existing", "remote": "https://github.com/mengchheanglong/logistics-sandbox.git", "inspectedCommit": "bd4c6bb08325b67d7af74bb5bcb6c1b79d13160c" },
     { "path": "osm-pathfinder", "role": "Shared physical road routing", "state": "existing", "remote": "https://github.com/mengchheanglong/osm-pathfinder.git", "inspectedCommit": "741cd0f9e263b0ebf68cd6ec5d715349f2e14b29" },
     { "path": "ecommerce-hive-nosql", "role": "Commercial storefront, polyglot customer portal & demand bridge", "state": "active", "remote": "https://github.com/mengchheanglong/ecommerce-hive-nosql.git", "inspectedCommit": "3fc6bf2" },
-    { "path": "distribution-intelligence", "role": "VRPTW optimization solver, financial cost-to-serve & scenario evaluation", "state": "active", "remote": null },
-    { "path": "platform-admin", "role": "Standalone ecosystem administration control plane", "state": "active", "remote": null }
+    { "path": "distribution-intelligence", "role": "VRPTW optimization solver, financial cost-to-serve & scenario evaluation", "state": "active", "remote": "https://github.com/mengchheanglong/distribution-intelligence.git" },
+    { "path": "supply-chain-control-tower", "role": "Centralized real-time supply chain operations control tower and mission control", "state": "active", "remote": "https://github.com/mengchheanglong/supply-chain-control-tower.git" }
   ],
   "hostPorts": {
     "routing": 3000,
-    "sandboxApi": 3001,
-    "marketplaceWeb": 3002,
+    "sandboxApi": 3007,
+    "ecommerceWeb": 3001,
     "platformApi": 3100,
     "platformWeb": 3101,
-    "platformAdmin": 3300,
+    "solverApi": 3200,
+    "controlTower": 3300,
     "marketplaceApi": 4000,
     "postgres": 5433,
     "sandboxWeb": 5173

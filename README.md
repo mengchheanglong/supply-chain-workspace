@@ -12,7 +12,7 @@ not an unorganized monorepo merger.
 - `osm-pathfinder/`: High-performance Rust routing engine (port 3000) under Compose profile `routing`, supporting Contraction Hierarchies, A*, TDSP traffic models, fleet profiles, and directed cost matrices (ROUTE-01) over real Cambodia OSM data.
 - `distribution-intelligence/`: Constraint optimization worker with VRPTW solvers (Greedy baseline vs. Metaheuristic 2-opt, OPT-01), independent constraint validation, and financial cost-to-serve Monte Carlo evaluation (EVAL-01).
 - `ecommerce-hive-nosql/`: Active polyglot customer storefront and merchant portal (port 4000/3001). Customer orders automatically bridge into `supply-chain-platform` fulfillment and double-entry stock allocation via `SupplyChainBridgeService`, while notifying `logistics-sandbox` for fleet dispatch.
-- `platform-admin/`: Standalone administrative control plane (port 3300) providing unified observability and management across stores, operations, live order streams, routing, simulation, optimization, and system telemetry.
+- `supply-chain-control-tower/`: Standalone operations control tower and mission control (port 3300) providing unified observability and execution across stores, operations, live order streams, routing, simulation, optimization, and system telemetry.
 
 Default Compose starts **PostgreSQL 18 / PostGIS 3.6**. The `routing` profile
 adds the router. The `simulation` profile adds the isolated sandbox API and web UI. See [setup status](docs/SETUP_STATUS.md).
