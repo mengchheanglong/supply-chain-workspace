@@ -23,7 +23,7 @@ foreach ($repo in $manifest.repositories) {
         & git -C $repoPath status --short
     } else { Write-Output "UNINITIALIZED: $($repo.path)" }
 }
-foreach ($packagePath in @('logistics-sandbox/backend', 'logistics-sandbox/frontend', 'ecommerce-hive-nosql/backend', 'ecommerce-hive-nosql/web')) {
+foreach ($packagePath in @('logistics-sandbox/backend', 'logistics-sandbox/frontend', 'ecommerce-storefront/backend', 'ecommerce-storefront/web')) {
     $compilerPath = Join-Path $workspaceRoot "$packagePath/node_modules/typescript/bin/tsc"
     if (Test-Path -LiteralPath $compilerPath -PathType Leaf) { Write-Output "LINK OK: $packagePath TypeScript" }
     else { Write-Output "DEPENDENCIES NOT READY: $packagePath (run Repair-Dependencies.ps1)" }

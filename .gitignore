@@ -2,8 +2,8 @@
 /supply-chain-platform/
 /logistics-sandbox/
 /osm-pathfinder/
-/ecommerce-hive-nosql/
-/distribution-intelligence/
+/ecommerce-storefront/
+/fleet-route-optimizer/
 /supply-chain-control-tower/
 
 # Machine-local configuration, credentials, datasets, and generated artifacts.

@@ -29,8 +29,8 @@ import { OperationalPlatformReadClient } from '../logistics-sandbox/backend/dist
 import { RoutingClient } from '../logistics-sandbox/backend/dist/routing/client.js';
 import { SCENARIO_PRESETS } from '../logistics-sandbox/backend/dist/scenarios/presets.js';
 
-// Import from ecommerce-hive-nosql
-import { SupplyChainBridgeService } from '../ecommerce-hive-nosql/backend/dist/orders/supply-chain-bridge.service.js';
+// Import from ecommerce-storefront
+import { SupplyChainBridgeService } from '../ecommerce-storefront/backend/dist/orders/supply-chain-bridge.service.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

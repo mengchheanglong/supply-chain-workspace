@@ -8,8 +8,8 @@ The workspace coordinates the **Supply Chain Operations Platform** (`supply-chai
 owning warehouse, inventory, fulfillment, and distribution operations.
 - Physical road graph routing is owned by `osm-pathfinder`.
 - Discrete-event simulation and replay are owned by `logistics-sandbox`.
-- Mathematical optimization (VRPTW) and financial cost evaluation are owned by `distribution-intelligence`.
-- The commercial customer-facing storefront and order intake gateway are owned by `ecommerce-hive-nosql`.
+- Mathematical optimization (VRPTW) and financial cost evaluation are owned by `fleet-route-optimizer`.
+- The commercial customer-facing storefront and order intake gateway are owned by `ecommerce-storefront`.
 - The centralized operations control tower and ecosystem cockpit is owned by `supply-chain-control-tower`.
 
 This architecture preserves clear domain boundaries while enabling end-to-end integration:
@@ -21,7 +21,7 @@ read-only snapshots feed solvers and simulation twins, and routing engines suppl
 ### Accepted clarification and current state
 
 `supply-chain-platform` is the operational warehouse/distribution authority.
-`ecommerce-hive-nosql` functions as the commercial storefront and customer demand gateway,
+`ecommerce-storefront` functions as the commercial storefront and customer demand gateway,
 bridged into `supply-chain-platform` via `SupplyChainBridgeService`.
 
 All Phase 0 through Pilot milestones are implemented and verified locally:

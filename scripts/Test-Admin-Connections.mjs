@@ -4,17 +4,17 @@
  * - supply-chain-platform (Port 3100)
  * - osm-pathfinder (Port 3000)
  * - logistics-sandbox (Port 3007)
- * - distribution-intelligence (Port 3200)
- * - ecommerce-hive-nosql (Port 3001)
- * - platform-admin (Port 3300)
+ * - fleet-route-optimizer (Port 3200)
+ * - ecommerce-storefront (Port 3001)
+ * - supply-chain-control-tower (Port 3300)
  */
 
 const PLATFORM_TOKEN = '2rTa1EJWQC6EyeyhpIcsDf2rEpRPBLGAz7eFwCwRQQo';
 
 async function testAdminConnections() {
   console.log('╔════════════════════════════════════════════════════════════════════╗');
-  console.log('║       PLATFORM ADMIN CROSS-ECOSYSTEM CONNECTIVITY SUITE            ║');
-  console.log('║   platform-admin -> supply-chain, osm, sandbox, solver, ecommerce  ║');
+  console.log('║       CONTROL TOWER CROSS-ECOSYSTEM CONNECTIVITY SUITE             ║');
+  console.log('║ control-tower -> supply-chain, osm, sandbox, optimizer, storefront ║');
   console.log('╚════════════════════════════════════════════════════════════════════╝\n');
 
   let passed = 0;
@@ -99,11 +99,11 @@ async function testAdminConnections() {
     assert(false, `osm-pathfinder connection failed: ${err.message}`);
   }
 
-  // 4. Test Distribution Intelligence Solver on Port 3200
-  console.log('\n▶ [CHECK 4/6] Distribution Intelligence VRPTW Solver (Port 3200)');
+  // 4. Test Fleet Route Optimizer Solver on Port 3200
+  console.log('\n▶ [CHECK 4/6] Fleet Route Optimizer VRPTW Solver (Port 3200)');
   try {
     const healthRes = await fetch('http://127.0.0.1:3200/api/health');
-    assert(healthRes.ok, 'distribution-intelligence /api/health responds 200 OK');
+    assert(healthRes.ok, 'fleet-route-optimizer /api/health responds 200 OK');
     const healthJson = await healthRes.json();
     assert(healthJson.algorithms?.includes('MetaheuristicVrpOptimizer'), 'Metaheuristic ALNS VRPTW solver algorithm online');
 
@@ -142,14 +142,15 @@ async function testAdminConnections() {
   console.log('\n▶ [CHECK 6/6] E-Commerce Storefront (Port 3001) & Admin Redirect');
   try {
     const webRes = await fetch('http://127.0.0.1:3001/');
-    assert(webRes.ok, 'ecommerce-hive-nosql storefront responds HTTP 200 on http://localhost:3001');
+    assert(webRes.ok, 'ecommerce-storefront responds HTTP 200 on http://localhost:3001');
 
     const adminRouteRes = await fetch('http://127.0.0.1:3001/admin');
-    assert(adminRouteRes.ok, 'ecommerce-hive-nosql /admin route responds 200 OK');
+    assert(adminRouteRes.ok, 'ecommerce-storefront /admin route responds 200 OK');
     const adminHtml = await adminRouteRes.text();
-    assert(adminHtml.includes('Platform Admin') || adminHtml.includes('3300'), 'E-commerce /admin successfully wires to Platform Admin Port 3300');
+    assert(adminHtml.includes('Platform Admin') || adminHtml.includes('3300') || adminHtml.includes('Control Tower'),
+      'E-commerce /admin successfully wires to Control Tower Port 3300');
   } catch (err) {
-    assert(false, `ecommerce-hive-nosql connection failed: ${err.message}`);
+    assert(false, `ecommerce-storefront connection failed: ${err.message}`);
   }
 
   console.log('\n======================================================================');

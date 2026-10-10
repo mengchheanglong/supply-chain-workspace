@@ -7,7 +7,7 @@ $installArgs = @('install', '--frozen-lockfile', '--force')
 if ($Offline) { $installArgs += '--offline' }
 
 # pnpm rebuilds generated links for the new absolute path. No shell deletion is used.
-foreach ($packagePath in @('logistics-sandbox', 'ecommerce-hive-nosql/backend', 'ecommerce-hive-nosql/web')) {
+foreach ($packagePath in @('logistics-sandbox', 'ecommerce-storefront/backend', 'ecommerce-storefront/web')) {
     $packageRoot = Join-Path $workspaceRoot $packagePath
     Write-Output "Installing locked dependencies: $packagePath"
     Push-Location -LiteralPath $packageRoot

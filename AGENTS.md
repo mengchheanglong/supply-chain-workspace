@@ -14,8 +14,8 @@ Follow the current user's request and applicable instructions when selecting wor
 - supply-chain-platform owns real warehouse, inventory, fulfillment and distribution operations.
 - logistics-sandbox owns simulation, deterministic experiments and replay.
 - osm-pathfinder owns physical road graph, routing costs and geometry.
-- distribution-intelligence owns constraint optimization (VRPTW), financial cost-to-serve modeling, and scenario evaluation (OPT-01, EVAL-01).
-- ecommerce-hive-nosql owns the multi-tenant commercial storefront and customer checkout engine. It actively bridges storefront demand into supply-chain-platform fulfillment and double-entry stock allocation via SupplyChainBridgeService, and notifies logistics-sandbox for fleet dispatch.
+- fleet-route-optimizer owns constraint optimization (VRPTW), financial cost-to-serve modeling, and scenario evaluation (OPT-01, EVAL-01).
+- ecommerce-storefront owns the multi-tenant commercial storefront and customer checkout engine. It actively bridges storefront demand into supply-chain-platform fulfillment and double-entry stock allocation via SupplyChainBridgeService, and notifies logistics-sandbox for fleet dispatch.
 - supply-chain-control-tower owns the standalone operations control tower and ecosystem mission control (port 3300).
 - Each application remains a separate Git repository. Root Git must not track nested repositories or runtime data.
 

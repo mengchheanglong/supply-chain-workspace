@@ -7,14 +7,14 @@
 | Warehouses, SKU stock, reservations, fulfillment, shipments | supply-chain-platform | Operational records & double-entry ledger |
 | Road graph, snapping, route/matrix costs and geometry | osm-pathfinder | Physical road network routing |
 | Clock, actors, incidents, seeded scenarios, run events | logistics-sandbox | Synthetic world & digital twin |
-| Constraint optimization (VRPTW), cost models, scenario comparisons | distribution-intelligence | Mathematical optimization & evaluation |
-| Commercial storefront, customer checkout & demand bridge | ecommerce-hive-nosql | Commercial storefront authority |
+| Constraint optimization (VRPTW), cost models, scenario comparisons | fleet-route-optimizer | Mathematical optimization & evaluation |
+| Commercial storefront, customer checkout & demand bridge | ecommerce-storefront | Commercial storefront authority |
 | Operations control tower, ecosystem monitoring & interactive dispatch | supply-chain-control-tower | Ecosystem operations control tower |
 | Local bootstrapping, containers, environment, common docs | supply-chain-workspace | Development orchestration |
 
 ```mermaid
 flowchart TD
-  subgraph Commercial["Commercial Layer (ecommerce-hive-nosql :3001/:4000)"]
+  subgraph Commercial["Commercial Layer (ecommerce-storefront :3001/:4000)"]
     Storefront["Customer Storefront & Checkout"]
     Bridge["SupplyChainBridgeService"]
     Storefront --> Bridge
@@ -33,7 +33,7 @@ flowchart TD
     Router["Rust Pathfinder Daemon\n(Contraction Hierarchies, A*, TDSP)"]
   end
 
-  subgraph Decision["Decision & Planning (distribution-intelligence)"]
+  subgraph Decision["Decision & Planning (fleet-route-optimizer)"]
     SnapshotAdapter["Snapshot Adapter"]
     Solver["VRPTW Metaheuristic Optimizer (OPT-01)"]
     Validator["Independent Constraint Validator"]
