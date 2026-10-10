@@ -66,12 +66,12 @@ foreach ($realOsm in @($false, $true)) {
 }
 
 if (Test-Path -LiteralPath (Join-Path $workspaceRoot '.git')) {
-    foreach ($ignoredPath in @('.env', '.secrets/postgres-admin-password.txt', 'runtime/artifacts/', 'supply-chain-platform/', 'logistics-sandbox/', 'osm-pathfinder/', 'ecommerce-hive-nosql/', 'distribution-intelligence/')) {
+    foreach ($ignoredPath in @('.env', '.secrets/postgres-admin-password.txt', 'runtime/artifacts/', 'supply-chain-platform/', 'logistics-sandbox/', 'osm-pathfinder/', 'ecommerce-hive-nosql/', 'distribution-intelligence/', 'platform-admin/')) {
         & git -C $workspaceRoot check-ignore --quiet -- $ignoredPath
         Assert-Condition ($LASTEXITCODE -eq 0) "Root Git must ignore: $ignoredPath"
     }
     $tracked = & git -C $workspaceRoot ls-files
-    Assert-Condition (-not @($tracked | Where-Object { $_ -match '^(\.secrets/|runtime/|supply-chain-platform/|logistics-sandbox/|osm-pathfinder/|ecommerce-hive-nosql/|distribution-intelligence/)' }).Count) 'Root Git is tracking private/generated or nested repository content.'
+    Assert-Condition (-not @($tracked | Where-Object { $_ -match '^(\.secrets/|runtime/|supply-chain-platform/|logistics-sandbox/|osm-pathfinder/|ecommerce-hive-nosql/|distribution-intelligence/|platform-admin/)' }).Count) 'Root Git is tracking private/generated or nested repository content.'
 }
 Write-Output 'PASS: PowerShell syntax, registry, base/OSM Compose, secret files, ports, networks and Git boundaries.'
 Write-Output 'Container images, database bootstrap and application behavior require runtime verification separately.'
