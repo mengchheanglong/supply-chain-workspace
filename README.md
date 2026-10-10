@@ -22,49 +22,49 @@ The workspace coordinates six autonomous repositories with decoupled concerns, s
 
 ```mermaid
 flowchart TD
-  subgraph Commercial["Commercial Layer (ecommerce-storefront :8400/:8401)"]
-    Storefront["Customer Storefront & Checkout\n(Next.js 15 + NestJS 10)"]
-    Bridge["SupplyChainBridgeService"]
+  subgraph Commercial ["Commercial Layer (ecommerce-storefront :8400 / :8401)"]
+    Storefront["Customer Storefront & Checkout<br/>(Next.js 15 + NestJS 10)"]
+    Bridge["SupplyChainBridgeService<br/>(Demand Routing)"]
     Storefront --> Bridge
   end
 
-  subgraph Operational["Operational Authority (supply-chain-platform :8100/:8101)"]
-    Ops["Operations Monolith API\n(Fastify + PostgreSQL 18)"]
-    Ledger["Double-Entry Inventory Ledger\n(PostGIS 3.6 Regional Hubs)"]
-    Export["Trigger-Guarded Planning Snapshot\n(DATA-02 / history_guard)"]
-    Bridge -->|POST /api/v1/fulfillment/orders| Ops
+  subgraph Operational ["Operational Authority (supply-chain-platform :8100 / :8101)"]
+    Ops["Operations Monolith API<br/>(Fastify Node.js)"]
+    Ledger["Double-Entry Inventory Ledger<br/>(PostgreSQL 18 + PostGIS 3.6)"]
+    Export["Trigger-Guarded Planning Snapshot<br/>(DATA-02 / history_guard)"]
+    Bridge -->|"POST /fulfillment/orders"| Ops
     Ops --> Ledger
     Ops --> Export
   end
 
-  subgraph Routing["Physical Road Network (osm-pathfinder :8000)"]
-    Router["Rust Axum Engine\n(Contraction Hierarchies, A*, TDSP)"]
+  subgraph Routing ["Physical Road Network (osm-pathfinder :8000)"]
+    Router["Rust Axum Routing Daemon<br/>(Contraction Hierarchies, A*, TDSP)"]
   end
 
-  subgraph Optimization["Fleet Route Optimizer (fleet-route-optimizer :8200)"]
-    Solver["VRPTW Metaheuristic Solver\n(Greedy vs. 2-Opt)"]
-    Validator["Independent Constraint Validator"]
-    CostModel["Financial Cost-to-Serve Evaluator\n(Monte Carlo Simulation)"]
+  subgraph Optimization ["Fleet Route Optimizer (fleet-route-optimizer :8200)"]
+    Solver["VRPTW Metaheuristic Solver<br/>(Greedy vs. 2-Opt)"]
+    Validator["Independent Constraint Validator<br/>(Capacities, Time Windows)"]
+    CostModel["Financial Cost-to-Serve Evaluator<br/>(Monte Carlo Simulation)"]
     Export --> Solver
-    Router -->|Directed Cost Matrix N x M| Solver
+    Router -->|"Directed Cost Matrix N x M"| Solver
     Solver --> Validator
     Validator --> CostModel
   end
 
-  subgraph Simulation["Digital Twin Sandbox (logistics-sandbox :8500/:8501)"]
-    Sim["Discrete-Event Simulation Worker\n(Seeded PRNG, Virtual Clock)"]
-    Bridge -.->|Order Dispatch Stream| Sim
-    Router -.->|Road Polyline Navigation| Sim
-    Export -.->|Immutable Snapshot Replay| Sim
+  subgraph Simulation ["Digital Twin Sandbox (logistics-sandbox :8500 / :8501)"]
+    Sim["Discrete-Event Simulation Worker<br/>(Seeded PRNG, Virtual Clock)"]
+    Bridge -.->|"Dispatch Event Stream"| Sim
+    Router -.->|"Road Polyline Navigation"| Sim
+    Export -.->|"Immutable Snapshot Replay"| Sim
   end
 
-  subgraph ControlTower["Operations Mission Control (supply-chain-control-tower :8300)"]
-    HQ["Control Tower UI\n(Vite + React + Tailwind)"]
-    HQ -.->|Reverse Proxy :8400/:8401| Commercial
-    HQ -.->|Reverse Proxy :8100/:8101| Operational
-    HQ -.->|Reverse Proxy :8000| Routing
-    HQ -.->|Reverse Proxy :8200| Optimization
-    HQ -.->|Reverse Proxy :8500/:8501| Simulation
+  subgraph ControlTower ["Operations Mission Control (supply-chain-control-tower :8300)"]
+    HQ["Control Tower UI Dashboard<br/>(Vite + React + Tailwind)"]
+    HQ -.->|"Proxy: Storefront"| Storefront
+    HQ -.->|"Proxy: Operations"| Ops
+    HQ -.->|"Proxy: Routing"| Router
+    HQ -.->|"Proxy: Optimizer"| Solver
+    HQ -.->|"Proxy: Simulation"| Sim
   end
 ```
 
@@ -126,21 +126,36 @@ Each subsystem remains an independent Git repository with sovereign versioning a
 
 The ecosystem executes a continuous cross-repository fulfillment and optimization cycle:
 
-```
-[1. Storefront Checkout] ──► [2. Platform Fulfillment Bridge] ──► [3. PostGIS Double-Entry Allocation]
-                                                                                │
-                                                                                ▼
-[6. Control Tower Telemetry] ◄── [5. Logistics Sandbox Dispatch] ◄── [4. Planning Snapshot & VRPTW Optimization]
-                                              ▲                                         ▲
-                                              └───────── [osm-pathfinder] ──────────────┘
+```mermaid
+flowchart TD
+  Step1["🛒 <b>1. Customer Checkout</b><br/>Storefront Cart & Dynamic KHQR<br/><code>ecommerce-storefront</code> (:8401 / :8400)"]
+  Step2["⚡ <b>2. Operational Bridge</b><br/>SupplyChainBridgeService<br/>Authenticated Tenant Demand Ingestion"]
+  Step3["📦 <b>3. Double-Entry Allocation</b><br/>PostgreSQL 18 + PostGIS 3.6<br/>Regional Depot Stock Hold (:5433)"]
+  Step4["📐 <b>4. VRPTW Route Optimization</b><br/>Fleet Route Optimizer<br/>Metaheuristic 2-Opt & Cost Model (:8200)"]
+  Step5["🚚 <b>5. Virtual Fleet Dispatch</b><br/>Logistics Sandbox Digital Twin<br/>Discrete Virtual Clock (:8500 / :8501)"]
+  Step6["🛰️ <b>6. Mission Control Telemetry</b><br/>Supply Chain Control Tower<br/>Live Fleet & Order Streams (:8300)"]
+
+  ROUTER["🗺️ <b>osm-pathfinder (:8000)</b><br/>Cambodia Road Network Engine<br/>Contraction Hierarchies, A* & TDSP"]
+
+  Step1 -->|"Inbound Order"| Step2
+  Step2 -->|"POST /fulfillment/orders"| Step3
+  Step3 -->|"Trigger DATA-02 Snapshot"| Step4
+  ROUTER -.->|"Directed Matrix N x M"| Step4
+  Step4 -->|"Dispatch Schedule"| Step5
+  ROUTER -.->|"Road Polyline Navigation"| Step5
+  Step5 -->|"Live Vehicle Telemetry"| Step6
 ```
 
-1. **Customer Order**: Customer checks out on `ecommerce-storefront` (`:8401`).
-2. **Operational Bridge**: `SupplyChainBridgeService` transmits the demand order to `supply-chain-platform` (`:8100`).
-3. **Double-Entry Allocation**: PostGIS allocates inventory from the nearest regional fulfillment center (`DC-PNH-01`, etc.) and transitions the order state.
-4. **Planning Snapshot & Optimization**: `supply-chain-platform` exports an immutable snapshot (`DATA-02`). `fleet-route-optimizer` (`:8200`) fetches the road distance matrix from `osm-pathfinder` (`:8000`) and computes optimal VRPTW routes.
-5. **Fleet Dispatch**: Virtual vehicles in `logistics-sandbox` (`:8500`/`:8501`) receive the dispatch schedule and navigate real road geometries from `osm-pathfinder`.
-6. **Mission Control**: Operators monitor live vehicle telemetry, store settlements, and fulfillment health in `supply-chain-control-tower` (`:8300`).
+### Execution Pipeline Breakdown
+
+| Phase | System & Port | Primary Action | Data Contract & Boundary |
+| :---: | :--- | :--- | :--- |
+| **1** | **Customer Checkout**<br/>`ecommerce-storefront` (`:8401` / `:8400`) | Customer places order, settles payment via KHQR, and triggers fulfillment. | Emits verified order payload with customer delivery coordinates. |
+| **2** | **Demand Bridge**<br/>`SupplyChainBridgeService` | Transparently bridges commercial demand to operational fulfillment. | Authenticated HTTP contract to `supply-chain-platform` (`:8100`). |
+| **3** | **Double-Entry Allocation**<br/>`supply-chain-platform` (`:8100` / `:5433`) | Allocates inventory across nearest regional depots (`DC-PNH-01`, etc.) via transactional PostGIS ledger. | Idempotent ledger entries; triggers immutable planning snapshot (`DATA-02`). |
+| **4** | **VRPTW Route Optimization**<br/>`fleet-route-optimizer` (`:8200`) | Solves multi-vehicle delivery schedules subject to time windows and capacities. | Ingests directed travel-time matrix from `osm-pathfinder` (`:8000`). |
+| **5** | **Virtual Fleet Dispatch**<br/>`logistics-sandbox` (`:8500` / `:8501`) | Dispatches delivery vehicles along real OpenStreetMap geometry in discrete simulation time. | Zero operational database write credentials (`ENV-02` isolation). |
+| **6** | **Mission Control Telemetry**<br/>`supply-chain-control-tower` (`:8300`) | Unified oversight of fleet telematics, order streams, store settlements, and system health. | Read-only reverse proxy streams (`/proxy/*`). |
 
 ---
 

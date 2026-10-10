@@ -14,51 +14,51 @@
 
 ```mermaid
 flowchart TD
-  subgraph Commercial["Commercial Layer (ecommerce-storefront :8400/:8401)"]
+  subgraph Commercial ["Commercial Layer (ecommerce-storefront :8400 / :8401)"]
     Storefront["Customer Storefront & Checkout"]
     Bridge["SupplyChainBridgeService"]
     Storefront --> Bridge
   end
 
-  subgraph Operational["Operational Authority (supply-chain-platform :8100/:8101)"]
+  subgraph Operational ["Operational Authority (supply-chain-platform :8100 / :8101)"]
     Ops["Supply Chain Operations Monolith"]
     Ledger["Double-Entry Inventory Ledger (PostGIS)"]
     Export["Trigger-Guarded Planning Snapshot (DATA-02)"]
-    Bridge -->|POST /fulfillment/orders & allocate| Ops
+    Bridge -->|"POST /fulfillment/orders & allocate"| Ops
     Ops --> Ledger
     Ops --> Export
   end
 
-  subgraph Routing["Physical Road Routing (osm-pathfinder :8000)"]
-    Router["Rust Pathfinder Daemon\n(Contraction Hierarchies, A*, TDSP)"]
+  subgraph Routing ["Physical Road Routing (osm-pathfinder :8000)"]
+    Router["Rust Pathfinder Daemon<br/>(Contraction Hierarchies, A*, TDSP)"]
   end
 
-  subgraph Decision["Decision & Planning (fleet-route-optimizer :8200)"]
+  subgraph Decision ["Decision & Planning (fleet-route-optimizer :8200)"]
     SnapshotAdapter["Snapshot Adapter"]
     Solver["VRPTW Metaheuristic Optimizer (OPT-01)"]
     Validator["Independent Constraint Validator"]
-    Evaluator["Financial Cost Model & Monte Carlo (EVAL-01)"]
+    CostModel["Financial Cost-to-Serve Evaluator (Monte Carlo)"]
     Export --> SnapshotAdapter
     SnapshotAdapter --> Solver
-    Router -->|Directed Cost Matrix N x M| Solver
+    Router -->|"Directed Cost Matrix N x M"| Solver
     Solver --> Validator
-    Validator --> Evaluator
+    Validator --> CostModel
   end
 
-  subgraph Simulation["Digital Twin (logistics-sandbox :8500/:8501)"]
+  subgraph Simulation ["Digital Twin (logistics-sandbox :8500 / :8501)"]
     Sim["Isolated Simulation Worker (P0-04, ENV-02)"]
-    Bridge -.->|POST /integrations/order| Sim
-    Router -.->|Road Polylines| Sim
-    Export -.->|Read-Only Replay| Sim
+    Bridge -.->|"POST /integrations/order"| Sim
+    Router -.->|"Road Polylines"| Sim
+    Export -.->|"Read-Only Replay"| Sim
   end
 
-  subgraph Admin["Operations Control Tower (supply-chain-control-tower :8300)"]
+  subgraph Admin ["Operations Control Tower (supply-chain-control-tower :8300)"]
     ControlPlane["Supply Chain Control Tower"]
-    ControlPlane -.-> Commercial
-    ControlPlane -.-> Operational
-    ControlPlane -.-> Routing
-    ControlPlane -.-> Decision
-    ControlPlane -.-> Simulation
+    ControlPlane -.->|"Proxy: Commercial"| Storefront
+    ControlPlane -.->|"Proxy: Operational"| Ops
+    ControlPlane -.->|"Proxy: Routing"| Router
+    ControlPlane -.->|"Proxy: Decision"| Solver
+    ControlPlane -.->|"Proxy: Simulation"| Sim
   end
 ```
 
