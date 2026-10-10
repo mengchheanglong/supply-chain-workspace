@@ -392,6 +392,21 @@ changes remain uncommitted; earlier workspace/sandbox work is preserved.
   - `pnpm --filter @supply-chain/web test`: **15 of 15 tests pass**.
   - `pnpm verify`: Clean verification across contracts, boundaries, build, and tests.
 
+### LIVE-SEED: Operational PostGIS Database Seeding & Infrastructure Verification
+- PostgreSQL 18 + PostGIS 3.6 running on loopback `127.0.0.1:5433` (`supply_chain_ops`).
+- Migrations 001 through 005 applied and checksums verified.
+- `scripts/Seed.cjs`: Idempotent seeder creating tenant ("Cambodia Express Logistics"), scoped API credentials, 4 distribution facilities with PostGIS spatial points, 4 enterprise catalog SKUs, double-entry inventory ledger movements (2,000 total on-hand units in Phnom Penh hub), and customer fulfillment orders.
+- Row-Level Security (RLS) actively enforced with `app.tenant_id` session isolation.
+
+### REAL-OSM: Physical OpenStreetMap Cambodia PBF Ingestion & Routing Engine
+- Downloaded and validated official Geofabrik Cambodia road extract (`cambodia-latest.osm.pbf`, 41,060,489 bytes) in `osm-pathfinder/data/` (gitignored).
+- Two-pass PBF parser successfully parsed real road network: **1,832,529 nodes** and **3,799,033 edges**.
+- Spatial index snags urban GPS coordinates (Phnom Penh Independence Monument to Wat Phnom) within 104.9m.
+- A* algorithm computed authentic road trajectory: **2,894.8m distance**, **144.3s duration**, **126 polyline coordinate points**.
+- Test evidence:
+  - `cargo +stable-x86_64-pc-windows-gnu test --test real_pbf_tests`: **PASS**.
+  - Full Rust test suite: **52 of 52 tests pass** (45 unit/lib, 2 benchmark, 4 integration, 1 real PBF).
+
 ## Existing baseline from source investigation
 
 - Rust: 40 tests passed with installed GNU toolchain; default MSVC link.exe unavailable.
